@@ -1,0 +1,6 @@
+name = S3 All The Things
+description = Makes S3 the default stream wrapper
+package = Utilities
+core = 7.x
+files[] = PublicAmazonS3StreamWrapper.inc
+dependencies[] = amazons3

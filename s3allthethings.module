@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * Implements hook_stream_wrappers_alter().
+ */
+function s3allthethings_stream_wrappers_alter(&$wrappers) {
+  if (isset($wrappers['publics3'])) {
+    $wrappers['public']['class'] = $wrappers['publics3']['class'];
+  }
+}
+
+/**
+ * Implements hook_stream_wrappers().
+ *
+ * Create a "public S3" stream wrapper.
+ */
+function s3allthethings_stream_wrappers() {
+  return array(
+    'publics3' => array(
+      'name' => 'Public Amazon S3',
+      'class' => 'PublicAmazonS3StreamWrapper',
+      'description' => t('Amazon Simple Storage Service Public Replacement'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_file_url_alter().
+ *
+ * Because direct CloudFront output of S3 files doesn't support Accept-Encoding
+ * changing of files, use this to serve .gz URLs to clients that support it.
+ *
+ * Note that this will cause issues with Drupal's built-in page caching.
+ */
+function s3allthethings_file_url_alter(&$url) {
+  if (preg_match('#^public://(js|css)/(js|css)_#', $url)) {
+    if (preg_match('/gzip/i', $_SERVER['HTTP_ACCEPT_ENCODING'])) {
+      $url .= '.gz';
+    }
+  }
+}
